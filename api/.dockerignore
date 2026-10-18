@@ -1,0 +1,14 @@
+.git
+.venv
+**/__pycache__
+*.py[oc]
+.pytest_cache
+.ruff_cache
+build
+dist
+wheels
+*.egg-info
+.env
+.env.*
+Dockerfile
+.dockerignore

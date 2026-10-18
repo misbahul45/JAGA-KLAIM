@@ -1,0 +1,43 @@
+services:
+  db:
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+
+  redis:
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+
+  migrate:
+    build:
+      target: dev
+    image: jaga-klaim-api:dev
+    read_only: false
+    volumes:
+      - ./api:/app
+
+  api:
+    build:
+      target: dev
+    image: jaga-klaim-api:dev
+    read_only: false
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    volumes:
+      - ./api:/app
+
+  client:
+    build:
+      target: dev
+    image: jaga-klaim-client:dev
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
+    ports:
+      - "127.0.0.1:${CLIENT_PORT:-3000}:3000"
+    volumes:
+      - ./client:/app
+      - client_node_modules:/app/node_modules
+      - client_next:/app/.next
+
+volumes:
+  client_node_modules:
+  client_next:
