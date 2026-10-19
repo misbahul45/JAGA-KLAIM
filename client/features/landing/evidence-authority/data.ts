@@ -1,51 +1,51 @@
 export const EVIDENCE_TERMS: { term: string; text: string }[] = [
   {
     term: "Expected evidence",
-    text: "Bukti yang seharusnya tersedia menurut aturan.",
+    text: "Bukti yang diharapkan sesuai aturan.",
   },
   {
     term: "Observed evidence",
-    text: "Bukti yang benar-benar ditemukan.",
+    text: "Bukti yang ditemukan dari sumber.",
   },
   {
     term: "Delta comparison",
-    text: "Perbandingan antara expected dan observed evidence.",
+    text: "Selisih antara bukti yang diharapkan dan ditemukan.",
   },
   {
     term: "Evidence citation",
-    text: "Referensi ke sumber yang mendukung temuan.",
+    text: "Rujukan sumber untuk mendukung temuan.",
   },
   {
     term: "Investigation timeline",
-    text: "Langkah operasional yang dilakukan agen.",
+    text: "Urutan langkah pemeriksaan oleh agen.",
   },
 ];
 
 export const TIMELINE_STEPS: string[] = [
-  "Mengambil expected evidence dari rule version aktif.",
-  "Menelusuri sumber yang diizinkan melalui RAG.",
-  "Memanggil tool pencarian yang diizinkan.",
-  "Membandingkan expected dan observed evidence.",
-  "Menyusun temuan dengan sitasi bukti.",
+  "Memuat aturan dan bukti yang dibutuhkan.",
+  "Mencari bukti dari sumber yang diizinkan.",
+  "Menelusuri sumber dengan tool yang tersedia.",
+  "Membandingkan bukti yang dibutuhkan dan ditemukan.",
+  "Menyajikan temuan beserta rujukannya.",
 ];
 
 export const AUTHORITY_POINTS: string[] = [
-  "Koder dan verifikator dapat memeriksa dasar temuan.",
-  "Verifikator wajib memberikan penilaian mandiri sebelum rekomendasi T2 dan T3 dibuka.",
+  "Koder dan verifikator dapat menelusuri dasar setiap temuan.",
+  "Verifikator menilai secara mandiri sebelum rekomendasi T2 dan T3 dibuka.",
   "Verifikator dapat menerima, menolak, atau mengeskalasi temuan.",
-  "Setiap verdict mempunyai alasan dan tercatat pada audit trail.",
+  "Setiap keputusan disertai alasan dan tercatat dalam audit trail.",
 ];
 
 export const AUTHORITY_FLOW: string[] = [
   "Penilaian mandiri",
   "Rekomendasi dibuka",
-  "Verdict dengan alasan",
+  "Keputusan beralasan",
   "Audit trail",
 ];
 
 export const AI_LIMITS: string[] = [
-  "AI tidak menetapkan fraud sebagai fakta final.",
+  "AI tidak menetapkan fraud sebagai fakta.",
   "AI tidak menolak klaim secara otomatis.",
-  "AI tidak mengubah kode klaim tanpa persetujuan manusia.",
-  "Bukti yang tidak ditemukan tidak otomatis membuktikan bahwa pelayanan tidak pernah dilakukan.",
+  "AI tidak mengubah kode tanpa persetujuan manusia.",
+  "Bukti yang tidak ditemukan bukan bukti bahwa pelayanan tidak dilakukan.",
 ];

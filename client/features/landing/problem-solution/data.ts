@@ -6,35 +6,39 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type ProblemItem = { icon: LucideIcon; title: string; text: string };
+export type ProblemItem = {
+  icon: LucideIcon;
+  title: string;
+  text: string;
+};
 
 export const PROBLEMS: ProblemItem[] = [
   {
     icon: TriangleAlertIcon,
-    title: "Kode dan bukti tidak selaras",
-    text: "Ketidaksesuaian antara kode diagnosis atau prosedur dan bukti yang tersedia.",
+    title: "Kode belum didukung bukti yang memadai",
+    text: "Kode diagnosis atau prosedur perlu diperiksa kesesuaiannya dengan dokumentasi klinis yang tersedia.",
   },
   {
     icon: LayersIcon,
-    title: "Bukti tersebar",
-    text: "Dokumentasi klinis dan operasional tersebar di berbagai sumber.",
+    title: "Dokumentasi tersebar",
+    text: "Informasi pendukung klaim dapat berada di berbagai dokumen dan sumber yang perlu ditinjau.",
   },
   {
     icon: ScaleIcon,
-    title: "Perbandingan tidak sistematis",
-    text: "Sulit membandingkan bukti yang seharusnya ada dengan bukti aktual secara sistematis.",
+    title: "Kesesuaian bukti sulit diperiksa",
+    text: "Bukti yang dibutuhkan perlu dibandingkan dengan bukti yang ditemukan agar kekurangan dapat diketahui.",
   },
   {
     icon: HistoryIcon,
-    title: "Ditemukan terlambat",
-    text: "Koreksi dan klarifikasi dibutuhkan ketika ketidaksesuaian baru ditemukan pada tahap berikutnya.",
+    title: "Ketidaksesuaian terlambat diketahui",
+    text: "Temuan pada tahap berikutnya dapat memerlukan klarifikasi dan koreksi tambahan.",
   },
 ];
 
 export const SOLUTION_STEPS: string[] = [
-  "Pemeriksaan dimulai setelah coding dan grouping INA-CBG selesai.",
-  "Sistem menentukan expected evidence berdasarkan aturan yang berlaku.",
-  "AI agent menelusuri evidence dari sumber yang diizinkan.",
-  "Sistem membandingkan expected evidence dengan observed evidence.",
-  "Hasil pemeriksaan disampaikan kepada koder atau verifikator untuk ditindaklanjuti.",
+  "Coding dan grouping INA-CBG diselesaikan oleh petugas.",
+  "Sistem mengidentifikasi bukti yang dibutuhkan berdasarkan aturan yang digunakan.",
+  "AI membantu menelusuri sumber bukti yang diizinkan.",
+  "Sistem menyajikan perbandingan antara bukti yang dibutuhkan dan bukti yang ditemukan.",
+  "Koder atau verifikator meninjau temuan dan menentukan tindak lanjut.",
 ];

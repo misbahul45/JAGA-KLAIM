@@ -19,36 +19,51 @@ export function Governance() {
     <SectionShell id="tata-kelola" tone="tint" ref={sectionRef}>
       <SectionHeading
         id="tata-kelola"
-        title="Dapat ditelusuri, dilindungi, dan dievaluasi secara jujur."
-        lead="Kepercayaan dibangun dari tata kelola yang jelas, perlindungan data, manfaat yang diharapkan, dan status pengembangan yang sebenarnya."
+        title="Transparan, aman, dan siap divalidasi."
+        lead="Setiap temuan dapat ditelusuri, data dilindungi, dan manfaat dievaluasi sebelum diterapkan."
       />
 
-      <ul data-reveal-group className="mt-14 grid gap-5 md:grid-cols-2">
-        {GOVERNANCE_BLOCKS.map(({ icon: Icon, title, surface, points, note }) => (
-          <li key={title} data-reveal-item className="flex">
-            <Card
-              className={`${surface} w-full gap-6 rounded-3xl p-7 text-base ring-0 sm:p-9`}
-            >
-            <span className="grid size-12 place-items-center rounded-2xl bg-ink text-white">
-              <Icon className="size-6" aria-hidden="true" />
-            </span>
-            <p className="text-2xl font-semibold tracking-[-0.03em] text-ink">{title}</p>
-            <ul className="flex flex-col gap-3">
-              {points.map((point) => (
-                <li key={point} className="flex items-start gap-3">
-                  <CheckIcon className="mt-1 size-4 shrink-0 text-ink" aria-hidden="true" />
-                  <span className="text-[0.95rem] leading-relaxed text-ink/85">{point}</span>
-                </li>
-              ))}
-            </ul>
-            {note ? (
-              <p className="mt-auto rounded-2xl bg-white/70 p-4 text-sm leading-relaxed text-ink/80">
-                {note}
-              </p>
-            ) : null}
-            </Card>
-          </li>
-        ))}
+      <ul
+        data-reveal-group
+        className="mt-10 grid gap-5 md:grid-cols-2"
+      >
+        {GOVERNANCE_BLOCKS.map(
+          ({ icon: Icon, title, surface, points, note }) => (
+            <li key={title} data-reveal-item className="flex">
+              <Card
+                className={`${surface} flex w-full flex-col gap-5 rounded-3xl p-6 ring-0 sm:p-8`}
+              >
+                <span className="grid size-11 place-items-center rounded-xl bg-ink text-white">
+                  <Icon className="size-5" aria-hidden="true" />
+                </span>
+
+                <h3 className="text-xl font-semibold tracking-tight text-ink">
+                  {title}
+                </h3>
+
+                <ul className="flex flex-col gap-3">
+                  {points.map((point) => (
+                    <li key={point} className="flex items-start gap-3">
+                      <CheckIcon
+                        className="mt-1 size-4 shrink-0 text-ink"
+                        aria-hidden="true"
+                      />
+                      <span className="text-sm leading-relaxed text-ink/85">
+                        {point}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                {note && (
+                  <p className="mt-auto rounded-xl bg-white/70 p-4 text-sm leading-relaxed text-ink/75">
+                    {note}
+                  </p>
+                )}
+              </Card>
+            </li>
+          ),
+        )}
       </ul>
     </SectionShell>
   );

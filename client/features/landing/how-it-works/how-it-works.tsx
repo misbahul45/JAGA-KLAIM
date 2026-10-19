@@ -8,7 +8,7 @@ import { SectionShell } from "@/components/shared/section-shell";
 import { Card } from "@/components/ui/card";
 import { useReveal } from "@/hooks/use-reveal";
 
-import { PRINCIPLES } from "./data";
+import { PRINCIPLES, STAGES } from "./data";
 import { PipelineCarousel } from "./pipeline-carousel";
 import { PipelineSceneLazy } from "./pipeline-scene-lazy";
 
@@ -20,39 +20,98 @@ export function HowItWorks() {
 
   return (
     <SectionShell id="cara-kerja" tone="dark" ref={sectionRef}>
-      <div aria-hidden="true" className="bg-dots-light absolute inset-0 -z-10 opacity-60" />
+      <div
+        aria-hidden="true"
+        className="bg-dots-light pointer-events-none absolute inset-0 -z-10 opacity-40"
+      />
 
       <SectionHeading
         id="cara-kerja"
         tone="dark"
-        title="Tujuh tahap dari klaim masuk hingga temuan yang bisa diperiksa."
-        lead="Alur ini menjadi penjelasan utama JAGA-KLAIM: dari hasil coding dan grouping INA-CBG, melalui penelusuran bukti oleh AI agent, hingga keputusan yang tetap berada di tangan manusia."
+        title="Dari klaim masuk hingga keputusan yang terarah."
+        lead="JAGA-KLAIM menelusuri bukti, mengidentifikasi perbedaan, dan membantu verifikator meninjau temuan sebelum mengambil keputusan."
       />
+
+      <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm font-medium text-white/70">
+          Alur pemeriksaan klaim
+        </p>
+
+        <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/65">
+          {String(active + 1).padStart(2, "0")} /{" "}
+          {String(STAGES.length).padStart(2, "0")} tahap
+        </span>
+      </div>
 
       <div
         data-reveal
-        className="relative mt-12 h-[250px] overflow-hidden rounded-[2rem] bg-white/[0.03] ring-1 ring-white/10 sm:h-[320px]"
+        className="relative mt-4 h-[220px] overflow-hidden rounded-3xl bg-[#081426] ring-1 ring-white/10 sm:h-[280px] lg:h-[330px]"
       >
         <PipelineSceneLazy activeIndex={active} />
+
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#081426]/70 to-transparent"
+        />
       </div>
 
-      <div data-reveal className="mt-8">
+      <div data-reveal className="mt-7">
         <PipelineCarousel onActiveChange={setActive} />
       </div>
 
-      <ul data-reveal-group className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {PRINCIPLES.map((principle) => (
-          <li key={principle.title} data-reveal-item className="flex">
-            <Card className="w-full gap-0 rounded-3xl bg-white/[0.05] p-6 text-base text-white ring-1 ring-white/10">
-              <ShieldCheckIcon className="size-5 text-mint" aria-hidden="true" />
-              <p className="mt-4 font-semibold tracking-[-0.02em] text-white">
-                {principle.title}
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-white/65">{principle.text}</p>
-            </Card>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-16">
+        <div data-reveal className="max-w-xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-mint">
+            Prinsip utama
+          </p>
+
+          <h3 className="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            Transparan dalam proses. Terukur dalam keputusan.
+          </h3>
+
+          <p className="mt-3 text-sm leading-relaxed text-white/60 sm:text-base">
+            Setiap temuan perlu memiliki dasar yang jelas, aturan yang
+            konsisten, dan ruang penilaian bagi manusia.
+          </p>
+        </div>
+
+        <ul
+          data-reveal-group
+          className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {PRINCIPLES.map((principle, index) => (
+            <li
+              key={principle.title}
+              data-reveal-item
+              className="flex"
+            >
+              <Card className="w-full gap-0 rounded-2xl bg-white/[0.04] p-5 text-base text-white ring-1 ring-white/10 transition-colors duration-300 hover:bg-white/[0.07]">
+                <div className="flex items-center justify-between">
+                  <ShieldCheckIcon
+                    className="size-5 text-mint"
+                    aria-hidden="true"
+                  />
+
+                  <span
+                    aria-hidden="true"
+                    className="font-mono text-sm text-white/30"
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                </div>
+
+                <h4 className="mt-5 font-semibold tracking-tight text-white">
+                  {principle.title}
+                </h4>
+
+                <p className="mt-2 text-sm leading-relaxed text-white/60">
+                  {principle.text}
+                </p>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      </div>
     </SectionShell>
   );
 }

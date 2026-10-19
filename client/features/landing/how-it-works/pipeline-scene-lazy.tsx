@@ -10,7 +10,11 @@ const PipelineScene = dynamic(() => import("./pipeline-scene"), {
   loading: () => <DotPoster tone="dark" />,
 });
 
-export function PipelineSceneLazy({ activeIndex }: { activeIndex: number }) {
+export function PipelineSceneLazy({
+  activeIndex,
+}: {
+  activeIndex: number;
+}) {
   const [hostRef, near] = useInView<HTMLDivElement>({
     rootMargin: "400px",
     once: true,

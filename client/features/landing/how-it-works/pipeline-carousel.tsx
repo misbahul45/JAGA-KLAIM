@@ -1,7 +1,12 @@
 "use client";
 
-import { ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  PauseIcon,
+  PlayIcon,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,60 +23,73 @@ type PipelineCarouselProps = {
   onActiveChange: (index: number) => void;
 };
 
-const AUTOPLAY_SECONDS = 5.5;
+const AUTOPLAY_SECONDS = 6;
 
-export function PipelineCarousel({ onActiveChange }: PipelineCarouselProps) {
+export function PipelineCarousel({
+  onActiveChange,
+}: PipelineCarouselProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLSpanElement>(null);
   const syncRef = useRef<(() => void) | null>(null);
   const playingRef = useRef(true);
+
   const [api, setApi] = useState<CarouselApi>();
+  const [selected, setSelected] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [edge, setEdge] = useState({ start: true, end: false });
   const [motionOk, setMotionOk] = useState(false);
 
+  const handleSelect = useCallback(() => {
+    if (!api) return;
+
+    const index = api.selectedScrollSnap();
+
+    setSelected(index);
+    setEdge({
+      start: !api.canScrollPrev(),
+      end: !api.canScrollNext(),
+    });
+
+    onActiveChange(index);
+  }, [api, onActiveChange]);
+
   useEffect(() => {
     if (!api) return;
-    const onSelect = () => {
-      onActiveChange(api.selectedScrollSnap());
-      setEdge({ start: !api.canScrollPrev(), end: !api.canScrollNext() });
-    };
-    api.on("select", onSelect);
-    api.on("reInit", onSelect);
+
+    handleSelect();
+
+    api.on("select", handleSelect);
+    api.on("reInit", handleSelect);
+
     return () => {
-      api.off("select", onSelect);
-      api.off("reInit", onSelect);
+      api.off("select", handleSelect);
+      api.off("reInit", handleSelect);
     };
-  }, [api, onActiveChange]);
+  }, [api, handleSelect]);
 
   useGSAP(
     () => {
-      if (!api) return;
       const root = rootRef.current;
-      if (!root) return;
+      const bar = barRef.current;
+
+      if (!api || !root || !bar) return;
+
       const mm = gsap.matchMedia();
 
       mm.add(MOTION_OK, () => {
         setMotionOk(true);
-        const cards = gsap.utils.toArray<HTMLElement>("[data-stage-card]", root);
+
+        const cards = gsap.utils.toArray<HTMLElement>(
+          "[data-stage-card]",
+          root,
+        );
+
         let visible = false;
         let hovered = false;
-
-        const focus = () => {
-          const current = api.selectedScrollSnap();
-          cards.forEach((card, index) => {
-            gsap.to(card, {
-              scale: index === current ? 1 : 0.94,
-              opacity: index === current ? 1 : 0.5,
-              duration: 0.5,
-              ease: "power3.out",
-              overwrite: "auto",
-            });
-          });
-        };
+        let focused = false;
 
         const progress = gsap.fromTo(
-          barRef.current,
+          bar,
           { scaleX: 0 },
           {
             scaleX: 1,
@@ -79,39 +97,80 @@ export function PipelineCarousel({ onActiveChange }: PipelineCarouselProps) {
             ease: "none",
             paused: true,
             onComplete: () => {
-              if (api.canScrollNext()) api.scrollNext();
-              else api.scrollTo(0);
+              if (api.canScrollNext()) {
+                api.scrollNext();
+              } else {
+                api.scrollTo(0);
+              }
             },
           },
         );
 
         const sync = () => {
-          if (visible && !hovered && playingRef.current) progress.play();
-          else progress.pause();
+          if (visible && !hovered && !focused && playingRef.current) {
+            progress.play();
+          } else {
+            progress.pause();
+          }
         };
+
         syncRef.current = sync;
 
+        const focusCards = () => {
+          const current = api.selectedScrollSnap();
+
+          cards.forEach((card, index) => {
+            gsap.to(card, {
+              scale: index === current ? 1 : 0.97,
+              duration: 0.4,
+              ease: "power2.out",
+              overwrite: "auto",
+            });
+          });
+        };
+
         const onSelect = () => {
+          progress.pause();
           progress.progress(0);
-          focus();
+          focusCards();
           sync();
         };
-        const onEnter = () => {
+
+        const onPointerEnter = () => {
           hovered = true;
           sync();
         };
-        const onLeave = () => {
+
+        const onPointerLeave = () => {
           hovered = false;
           sync();
         };
 
-        focus();
+        const onFocusIn = () => {
+          focused = true;
+          sync();
+        };
+
+        const onFocusOut = (event: FocusEvent) => {
+          const nextTarget = event.relatedTarget;
+
+          if (nextTarget instanceof Node && root.contains(nextTarget)) {
+            return;
+          }
+
+          focused = false;
+          sync();
+        };
+
+        focusCards();
+
         api.on("select", onSelect);
         api.on("reInit", onSelect);
-        root.addEventListener("pointerenter", onEnter);
-        root.addEventListener("pointerleave", onLeave);
-        root.addEventListener("focusin", onEnter);
-        root.addEventListener("focusout", onLeave);
+
+        root.addEventListener("pointerenter", onPointerEnter);
+        root.addEventListener("pointerleave", onPointerLeave);
+        root.addEventListener("focusin", onFocusIn);
+        root.addEventListener("focusout", onFocusOut);
 
         const trigger = ScrollTrigger.create({
           trigger: root,
@@ -123,34 +182,49 @@ export function PipelineCarousel({ onActiveChange }: PipelineCarouselProps) {
           },
         });
 
-        gsap.from(cards, {
-          y: 36,
-          autoAlpha: 0,
-          duration: 0.8,
-          ease: "power3.out",
-          stagger: 0.08,
-          clearProps: "visibility",
-          scrollTrigger: { trigger: root, start: "top 85%", once: true },
-        });
+        gsap.fromTo(
+          cards,
+          { y: 18, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.65,
+            stagger: 0.07,
+            ease: "power2.out",
+            clearProps: "opacity,visibility",
+            scrollTrigger: {
+              trigger: root,
+              start: "top 85%",
+              once: true,
+            },
+          },
+        );
 
         return () => {
-          setMotionOk(false);
           syncRef.current = null;
+          setMotionOk(false);
+
+          progress.kill();
           trigger.kill();
+
           api.off("select", onSelect);
           api.off("reInit", onSelect);
-          root.removeEventListener("pointerenter", onEnter);
-          root.removeEventListener("pointerleave", onLeave);
-          root.removeEventListener("focusin", onEnter);
-          root.removeEventListener("focusout", onLeave);
+
+          root.removeEventListener("pointerenter", onPointerEnter);
+          root.removeEventListener("pointerleave", onPointerLeave);
+          root.removeEventListener("focusin", onFocusIn);
+          root.removeEventListener("focusout", onFocusOut);
         };
       });
+
+      return () => mm.revert();
     },
     { scope: rootRef, dependencies: [api] },
   );
 
   function togglePlaying() {
     const next = !playingRef.current;
+
     playingRef.current = next;
     setPlaying(next);
     syncRef.current?.();
@@ -160,50 +234,86 @@ export function PipelineCarousel({ onActiveChange }: PipelineCarouselProps) {
     <div ref={rootRef}>
       <Carousel
         setApi={setApi}
-        opts={{ align: "center", containScroll: false }}
+        opts={{
+          align: "center",
+          containScroll: false,
+          duration: 35,
+        }}
         aria-label="Tujuh tahap pipeline JAGA-KLAIM"
       >
-        <CarouselContent className="-ml-4 py-2">
+        <CarouselContent className="-ml-4 py-3">
           {STAGES.map((stage, index) => {
             const Icon = stage.icon;
+            const isSelected = selected === index;
+
             return (
               <CarouselItem
                 key={stage.name}
-                className="basis-[86%] pl-4 sm:basis-[52%] lg:basis-[36%]"
+                className="basis-[88%] pl-4 sm:basis-[55%] lg:basis-[36%]"
                 aria-label={`Tahap ${index + 1} dari ${STAGES.length}: ${stage.name}`}
               >
-                <article
+                <button
+                  type="button"
                   data-stage-card
-                  className="flex h-full flex-col gap-5 rounded-3xl bg-white/[0.06] p-7 ring-1 ring-white/12"
+                  aria-current={isSelected ? "step" : undefined}
+                  onClick={() => api?.scrollTo(index)}
+                  className={`flex h-full min-h-[220px] w-full flex-col rounded-2xl p-6 text-left ring-1 outline-none transition-[background-color,ring-color] duration-300 focus-visible:ring-2 focus-visible:ring-mint ${
+                    isSelected
+                      ? "bg-white/[0.10] ring-mint/50"
+                      : "bg-white/[0.04] ring-white/10 hover:bg-white/[0.07]"
+                  }`}
                 >
-                  <div className="flex items-start justify-between">
-                    <span className="grid size-12 place-items-center rounded-2xl bg-brand text-white">
-                      <Icon className="size-6" aria-hidden="true" />
+                  <div className="flex items-start justify-between gap-4">
+                    <span
+                      className={`grid size-11 place-items-center rounded-xl transition-colors duration-300 ${
+                        isSelected
+                          ? "bg-brand text-white"
+                          : "bg-white/10 text-white/75"
+                      }`}
+                    >
+                      <Icon className="size-5" aria-hidden="true" />
                     </span>
+
                     <span
                       aria-hidden="true"
-                      className="font-mono text-5xl leading-none font-medium text-white/15"
+                      className={`font-mono text-4xl font-medium leading-none transition-colors duration-300 ${
+                        isSelected ? "text-mint/70" : "text-white/15"
+                      }`}
                     >
-                      {index + 1}
+                      {String(index + 1).padStart(2, "0")}
                     </span>
                   </div>
-                  <div>
-                    <p className="text-xl font-semibold tracking-[-0.025em] text-white">
+
+                  <div className="mt-6">
+                    <h3 className="text-lg font-semibold tracking-tight text-white">
                       {stage.name}
-                    </p>
-                    <p className="mt-2 text-[0.95rem] leading-relaxed text-white/70">
+                    </h3>
+
+                    <p className="mt-2 text-sm leading-relaxed text-white/65">
                       {stage.description}
                     </p>
                   </div>
-                </article>
+
+                  <div className="mt-auto flex items-center gap-2 pt-5">
+                    <span
+                      className={`h-1 rounded-full transition-all duration-300 ${
+                        isSelected ? "w-8 bg-mint" : "w-3 bg-white/20"
+                      }`}
+                    />
+
+                    <span className="text-xs text-white/40">
+                      {isSelected ? "Tahap aktif" : "Pilih tahap"}
+                    </span>
+                  </div>
+                </button>
               </CarouselItem>
             );
           })}
         </CarouselContent>
       </Carousel>
 
-      <div className="mt-6 flex items-center gap-4">
-        <div className="flex items-center gap-2">
+      <div className="mt-5 flex items-center gap-3 sm:gap-4">
+        <div className="flex shrink-0 items-center gap-2">
           <Button
             variant="glass"
             size="icon-lg"
@@ -211,8 +321,9 @@ export function PipelineCarousel({ onActiveChange }: PipelineCarouselProps) {
             disabled={edge.start}
             onClick={() => api?.scrollPrev()}
           >
-            <ChevronLeftIcon />
+            <ChevronLeftIcon aria-hidden="true" />
           </Button>
+
           <Button
             variant="glass"
             size="icon-lg"
@@ -220,30 +331,48 @@ export function PipelineCarousel({ onActiveChange }: PipelineCarouselProps) {
             disabled={edge.end}
             onClick={() => api?.scrollNext()}
           >
-            <ChevronRightIcon />
+            <ChevronRightIcon aria-hidden="true" />
           </Button>
         </div>
+
         <div
-          aria-hidden="true"
+          role="progressbar"
+          aria-label="Progres putar otomatis"
+          aria-valuemin={0}
+          aria-valuemax={100}
           className="relative h-1 flex-1 overflow-hidden rounded-full bg-white/10"
         >
           <span
             ref={barRef}
-            className="absolute inset-0 origin-left scale-x-0 rounded-full bg-brand"
+            aria-hidden="true"
+            className="absolute inset-0 origin-left scale-x-0 rounded-full bg-mint"
           />
         </div>
-        {motionOk ? (
+
+        {motionOk && (
           <Button
             variant="glass"
             size="icon-lg"
-            aria-pressed={!playing}
-            aria-label={playing ? "Jeda putar otomatis" : "Lanjutkan putar otomatis"}
+            aria-pressed={playing}
+            aria-label={
+              playing
+                ? "Jeda putar otomatis"
+                : "Lanjutkan putar otomatis"
+            }
             onClick={togglePlaying}
           >
-            {playing ? <PauseIcon /> : <PlayIcon />}
+            {playing ? (
+              <PauseIcon aria-hidden="true" />
+            ) : (
+              <PlayIcon aria-hidden="true" />
+            )}
           </Button>
-        ) : null}
+        )}
       </div>
+
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        Tahap {selected + 1} dari {STAGES.length}: {STAGES[selected]?.name}
+      </p>
     </div>
   );
 }

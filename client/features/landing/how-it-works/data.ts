@@ -18,57 +18,56 @@ export type Stage = {
 export const STAGES: Stage[] = [
   {
     icon: ClipboardCheckIcon,
-    name: "Claim Input",
+    name: "Input Klaim",
     description: "Menerima hasil coding dan grouping INA-CBG.",
   },
   {
     icon: ListChecksIcon,
-    name: "Expected Evidence Engine",
-    description: "Menentukan bukti yang diperlukan berdasarkan rule version aktif.",
+    name: "Pemetaan Bukti",
+    description: "Menentukan bukti yang dibutuhkan sesuai aturan aktif.",
   },
   {
     icon: BotIcon,
-    name: "AI Investigation Agent",
-    description: "Menelusuri bukti melalui RAG dan tool yang diizinkan.",
+    name: "Investigasi AI",
+    description: "Menelusuri bukti dari sumber yang diizinkan.",
   },
   {
     icon: ScaleIcon,
-    name: "Delta Analysis",
-    description: "Membandingkan expected dan observed evidence.",
+    name: "Analisis Bukti",
+    description: "Membandingkan bukti yang dibutuhkan dan ditemukan.",
   },
   {
     icon: GavelIcon,
-    name: "Deterministic Policy Engine",
-    description: "Menetapkan tingkat intervensi berdasarkan aturan.",
+    name: "Mesin Kebijakan",
+    description: "Menentukan tingkat intervensi berdasarkan aturan.",
   },
   {
     icon: UserCheckIcon,
-    name: "Human Workspace",
-    description: "Menyediakan temuan dan bukti untuk pemeriksaan manusia.",
+    name: "Tinjauan Manusia",
+    description: "Membantu koder dan verifikator menilai temuan.",
   },
   {
     icon: ScrollTextIcon,
-    name: "Audit & Governance",
-    description:
-      "Mencatat proses dan mendukung perbaikan aturan secara terkendali.",
+    name: "Audit dan Evaluasi",
+    description: "Mencatat proses untuk penelusuran dan evaluasi aturan.",
   },
 ];
 
 export const PRINCIPLES: { title: string; text: string }[] = [
   {
-    title: "AI tidak menentukan status akhir klaim",
-    text: "AI agent hanya menelusuri dan menyusun temuan. Status klaim tetap ditetapkan manusia.",
+    title: "Keputusan oleh manusia",
+    text: "AI membantu menelusuri bukti. Keputusan akhir tetap berada pada manusia.",
   },
   {
-    title: "Policy engine terpisah dari AI",
-    text: "Tingkat intervensi ditetapkan oleh aturan deterministik, bukan oleh proses investigasi AI.",
+    title: "Aturan terpisah dari AI",
+    text: "Mesin kebijakan menentukan tingkat intervensi berdasarkan aturan.",
   },
   {
-    title: "Temuan wajib bersitasi",
-    text: "Setiap temuan didukung bukti yang dapat ditelusuri kembali ke sumbernya.",
+    title: "Temuan dapat ditelusuri",
+    text: "Temuan dilengkapi rujukan ke sumber bukti yang mendukungnya.",
   },
   {
-    title: "Tanpa delta, tetap tercatat",
-    text: "Bila tidak ditemukan delta, hasilnya No Action dan tetap masuk audit trail.",
+    title: "Semua hasil tercatat",
+    text: "Hasil No Action tetap masuk audit trail saat tidak ditemukan perbedaan bukti.",
   },
 ];
