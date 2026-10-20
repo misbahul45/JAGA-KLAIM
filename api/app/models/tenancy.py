@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 from sqlalchemy import true
 from sqlmodel import Field, Relationship
 
-from app.models.base import TimestampedModel
+from app.domain.enums import Role, sql_values
+from app.models.base import TimestampedModel, check
 
 if TYPE_CHECKING:
     from app.models.claims import Claim
@@ -24,6 +25,7 @@ class Faskes(TimestampedModel, table=True):
 
 class AppUser(TimestampedModel, table=True):
     __tablename__ = "app_user"
+    __table_args__ = (check("role_valid", f"role IN ({sql_values(Role)})"),)
 
     faskes_id: uuid.UUID = Field(foreign_key="faskes.id", index=True)
     name: str

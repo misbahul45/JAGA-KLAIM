@@ -56,12 +56,13 @@ export function PipelineCarousel({
   useEffect(() => {
     if (!api) return;
 
-    handleSelect();
+    const frame = requestAnimationFrame(handleSelect);
 
     api.on("select", handleSelect);
     api.on("reInit", handleSelect);
 
     return () => {
+      cancelAnimationFrame(frame);
       api.off("select", handleSelect);
       api.off("reInit", handleSelect);
     };

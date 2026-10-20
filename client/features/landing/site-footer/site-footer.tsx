@@ -1,6 +1,8 @@
 import { Logo } from "@/components/shared/logo";
 import { NAV_ITEMS } from "@/features/landing/site-header/nav-items";
 
+import { CopyrightYear } from "./copyright-year";
+
 export function SiteFooter() {
   return (
     <footer className="border-t border-line bg-background">
@@ -53,7 +55,7 @@ export function SiteFooter() {
       <div className="border-t border-line">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-5 py-5 text-xs leading-5 text-muted-foreground sm:px-8 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            &copy; {new Date().getFullYear()} JAGA-KLAIM.
+            &copy; <CopyrightYear /> JAGA-KLAIM.
           </p>
 
           <p>

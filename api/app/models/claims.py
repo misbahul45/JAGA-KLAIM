@@ -2,11 +2,13 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Optional
 
-from sqlalchemy import DateTime, Index, Text, func
+from sqlalchemy import DateTime, Index, Text, func, text
 from sqlmodel import Field, Relationship
 
+from app.domain.enums import ClaimStatus, sql_values
 from app.models.base import (
     TimestampedModel,
+    check,
     jsonb_optional_field,
     timestamptz_field,
     utcnow,
@@ -20,13 +22,25 @@ if TYPE_CHECKING:
 
 class Claim(TimestampedModel, table=True):
     __tablename__ = "claim"
-    __table_args__ = (Index("ix_claim_faskes_id_episode_no", "faskes_id", "episode_no"),)
+    __table_args__ = (
+        Index("ix_claim_faskes_id_episode_no", "faskes_id", "episode_no"),
+        Index("ix_claim_faskes_id_status", "faskes_id", "status"),
+        check("status_valid", f"status IN ({sql_values(ClaimStatus)})"),
+        check("version_positive", "version >= 1"),
+        check(
+            "episode_period_valid",
+            "episode_start IS NULL OR episode_end IS NULL OR episode_end >= episode_start",
+        ),
+    )
 
     faskes_id: uuid.UUID = Field(foreign_key="faskes.id")
     episode_no: str
     patient_pseudonym: str
     inacbgb_result: dict[str, Any] | None = jsonb_optional_field()
-    status: str
+    status: str = ClaimStatus.DRAFT.value
+    version: int = Field(default=1, sa_column_kwargs={"server_default": text("1")})
+    episode_start: datetime | None = timestamptz_field()
+    episode_end: datetime | None = timestamptz_field()
     submitted_by: uuid.UUID | None = Field(
         default=None, foreign_key="app_user.id", index=True
     )
@@ -62,6 +76,7 @@ class ClaimCode(TimestampedModel, table=True):
     code: str = Field(index=True)
     position: str | None = None
     description: str | None = Field(default=None, sa_type=Text)
+    superseded_at: datetime | None = timestamptz_field()
 
     claim: "Claim" = Relationship(back_populates="codes")
     findings: list["Finding"] = Relationship(back_populates="claim_code")

@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import DateTime, func, text
+from sqlalchemy import CheckConstraint, DateTime, func, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, SQLModel
 
@@ -19,6 +19,10 @@ EMBEDDING_DIM = 1024
 
 def utcnow() -> datetime:
     return datetime.now(UTC)
+
+
+def check(name: str, expression: str) -> CheckConstraint:
+    return CheckConstraint(expression, name=name)
 
 
 def created_at_field() -> Any:

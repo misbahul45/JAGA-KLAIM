@@ -25,6 +25,14 @@ services:
     volumes:
       - ./api:/app
 
+  worker:
+    build:
+      target: dev
+    image: jaga-klaim-api:dev
+    read_only: false
+    volumes:
+      - ./api:/app
+
   client:
     build:
       target: dev

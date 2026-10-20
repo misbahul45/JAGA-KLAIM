@@ -1,3 +1,4 @@
+from app.models.auth import AuthSession, UserCredential
 from app.models.base import EMBEDDING_DIM, SQLModel
 from app.models.claims import Claim, ClaimCode
 from app.models.evidence import EvidenceCitation, EvidenceItem, EvidenceSource
@@ -13,6 +14,7 @@ from app.models.review import (
     HumanVerdict,
     Intervention,
     RuleUpdate,
+    RuleUpdateBasis,
 )
 from app.models.rules import (
     ExpectedRule,
@@ -26,10 +28,10 @@ from app.models.tenancy import AppUser, Faskes
 
 __all__ = [
     "EMBEDDING_DIM",
-    "SQLModel",
     "AgentStep",
     "AppUser",
     "AuditLog",
+    "AuthSession",
     "Claim",
     "ClaimCode",
     "CognitiveAssessment",
@@ -49,5 +51,8 @@ __all__ = [
     "RiskVector",
     "RuleSet",
     "RuleUpdate",
+    "RuleUpdateBasis",
     "RuleVersion",
+    "SQLModel",
+    "UserCredential",
 ]

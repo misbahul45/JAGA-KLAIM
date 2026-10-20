@@ -19,7 +19,7 @@ import {
   ShaderMaterial,
   Vector3,
 } from "three";
-import type { ThreeEvent } from "@react-three/fiber";
+import type { RootState, ThreeEvent } from "@react-three/fiber";
 
 const DOT_COLS = 28;
 const DOT_ROWS = 26;
@@ -335,6 +335,20 @@ function useMotionPreference() {
   };
 }
 
+function advanceDotField(
+  material: ShaderMaterial,
+  points: Points | null,
+  state: RootState,
+  delta: number,
+) {
+  material.uniforms.uTime.value += Math.min(delta, 0.05);
+  material.uniforms.uPixelRatio.value = Math.min(state.gl.getPixelRatio(), 1.5);
+
+  if (points) {
+    points.rotation.z = Math.sin(state.clock.elapsedTime * 0.08) * 0.012;
+  }
+}
+
 function DotField({ animate }: { animate: boolean }) {
   const pointsRef = useRef<Points>(null);
 
@@ -365,19 +379,7 @@ function DotField({ animate }: { animate: boolean }) {
 
   useFrame((state, delta) => {
     if (!animate) return;
-
-    material.uniforms.uTime.value += Math.min(delta, 0.05);
-
-    material.uniforms.uPixelRatio.value = Math.min(
-      state.gl.getPixelRatio(),
-      1.5,
-    );
-
-    if (pointsRef.current) {
-      pointsRef.current.rotation.z = Math.sin(
-        state.clock.elapsedTime * 0.08,
-      ) * 0.012;
-    }
+    advanceDotField(material, pointsRef.current, state, delta);
   });
 
   return (

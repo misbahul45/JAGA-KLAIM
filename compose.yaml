@@ -14,6 +14,11 @@ x-api-environment: &api-environment
   REDIS_PORT: 6379
   REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}
 
+x-runtime-environment: &runtime-environment
+  <<: *api-environment
+  POSTGRES_USER: ${POSTGRES_APP_USER:-${POSTGRES_USER:?set POSTGRES_USER in .env}}
+  POSTGRES_PASSWORD: ${POSTGRES_APP_PASSWORD:-${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}}
+
 services:
   db:
     image: pgvector/pgvector:pg17
@@ -71,9 +76,12 @@ services:
   migrate:
     build: *api-build
     image: jaga-klaim-api:local
-    command: ["alembic", "upgrade", "head"]
+    command: ["sh", "-c", "alembic upgrade head && python -m app.cli provision-app-role"]
     restart: "no"
-    environment: *api-environment
+    environment:
+      <<: *api-environment
+      APP_DB_USER: ${POSTGRES_APP_USER:-}
+      APP_DB_PASSWORD: ${POSTGRES_APP_PASSWORD:-}
     depends_on:
       db:
         condition: service_healthy
@@ -89,7 +97,7 @@ services:
     image: jaga-klaim-api:local
     restart: unless-stopped
     environment:
-      <<: *api-environment
+      <<: *runtime-environment
       API_CORS_ORIGINS: ${API_CORS_ORIGINS:-http://localhost:8080}
       FORWARDED_ALLOW_IPS: "*"
     depends_on:
@@ -109,6 +117,36 @@ services:
       timeout: 3s
       start_period: 10s
       retries: 3
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+
+  worker:
+    build: *api-build
+    image: jaga-klaim-api:local
+    command: ["python", "-m", "app.worker"]
+    restart: unless-stopped
+    environment: *runtime-environment
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -m
+        - app.worker
+        - --check
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+    stop_grace_period: 30s
     read_only: true
     tmpfs:
       - /tmp
